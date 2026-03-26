@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+    
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <title>ChefBot - Gătește Inteligent</title>
+    <meta name="description" content="ChefBot este asistentul tău culinar AI. Găsește rețete românești și internaționale, generează meniuri și lista de cumpărături instant.">
+    <meta name="keywords" content="retete, gatit, bucatarie, mancare, AI, chefbot, retete romanesti, planificator mese">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.chefbot.ro/">
+    <meta property="og:title" content="ChefBot - Rețeta perfectă din prima">
+    <meta property="og:description" content="Gătește cu ce ai în frigider. Asistentul tău culinar personal.">
+    <meta property="og:image" content="https://www.chefbot.ro/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.chefbot.ro/">
+    <meta property="twitter:title" content="ChefBot - Asistent Culinar AI">
+    <meta property="twitter:description" content="Gătește inteligent cu ChefBot. Rețete generate pe loc.">
+    
+    <!-- PWA & Mobile -->
+    <link rel="manifest" href="/manifest.json?v=16">
+    <meta name="theme-color" content="#2C95C9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/chefbot_logo.svg?v=16">
+    <link rel="apple-touch-icon" href="/chefbot_logo.svg?v=16">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              chef: { light: '#6ECFF6', intense: '#2C95C9', white: '#FFFFFF', grey: '#F2F6F8' }
+            },
+            fontFamily: { sans: ['Inter', 'sans-serif'] },
+            animation: { 'fade-in': 'fadeIn 0.5s ease-out' },
+            keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+      html { -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; background-color: #FDFBF7; }
+      body { 
+        font-family: 'Inter', sans-serif; 
+        -webkit-tap-highlight-color: transparent; 
+        margin: 0; 
+        min-height: 100vh; 
+        overflow-x: hidden; 
+        /* Removed background-color from body to prevent masking the fixed layer */
+        background-color: transparent;
+      }
+
+      /* FIXED BACKGROUND LAYER - Z-Index 0 */
+      #bg-fixed-layer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0; /* Base layer */
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      #bg-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* The Cookbook Image (Correct) */
+        background-image: url('https://images.unsplash.com/photo-1506368249639-73a05d6f6488?q=80&w=2574&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      #bg-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* 70% Opacity Cream - Higher contrast */
+        background-color: rgba(253, 251, 247, 0.70); 
+        backdrop-filter: blur(2px); 
+      }
+
+      /* APP ROOT - Z-Index 1 (On top of background) */
+      #root {
+        position: relative;
+        z-index: 1;
+      }
+
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: #6ECFF6; border-radius: 4px; }
+      
+      .pt-safe { padding-top: env(safe-area-inset-top); }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+      
+      #rescue-ui {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background-color: #f8f9fa;
+        z-index: 99999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        text-align: center;
+      }
+    </style>
+
+    <script>
+      window.onerror = function(msg, url, line, col, error) {
+        console.error("Critical Error:", msg, error);
+        var root = document.getElementById('root');
+        if (root && (!root.hasChildNodes() || root.innerText.trim() === "")) {
+             document.getElementById('rescue-ui').style.display = 'flex';
+             document.getElementById('error-msg').innerText = msg;
+        }
+      };
+
+      function performHardReset() {
+          if(confirm("Această acțiune va șterge datele salvate local și va reîncărca aplicația. Continui?")) {
+              localStorage.clear();
+              sessionStorage.clear();
+              if(navigator.serviceWorker) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                      for(let registration of registrations) { registration.unregister() }
+                  });
+              }
+              window.location.reload();
+          }
+      }
+    </script>
+
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-helmet-async": "https://esm.sh/react-helmet-async@2.0.4?external=react,react-dom",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?external=react,react-dom",
+    "react-router": "https://esm.sh/react-router@6.22.3?external=react",
+    "vite": "https://aistudiocdn.com/vite@^7.2.7",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2",
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js",
+    "firebase/storage": "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js",
+    "firebase/": "https://www.gstatic.com/firebasejs/10.8.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="text-slate-800 select-none touch-manipulation">
+    
+    <!-- FIXED BACKGROUND LAYER (Z-INDEX 0) -->
+    <div id="bg-fixed-layer">
+      <div id="bg-image"></div>
+      <div id="bg-overlay"></div>
+    </div>
+    
+    <!-- RESCUE UI -->
+    <div id="rescue-ui">
+        <div style="font-size: 64px; margin-bottom: 20px;">🚑</div>
+        <h1 style="font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 10px;">Mod de Recuperare</h1>
+        <p style="color: #64748b; margin-bottom: 30px; max-width: 400px;">Aplicația nu a putut porni corect.</p>
+        <button onclick="performHardReset()" style="background-color: #ef4444; color: white; padding: 15px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer;">
+            🗑️ HARD RESET
+        </button>
+        <div style="margin-top: 40px;">
+            <code id="error-msg" style="font-size: 10px; color: #ef4444;">Eroare necunoscută</code>
+        </div>
+    </div>
+
+    <!-- APP ROOT (Z-INDEX 1) -->
+    <div id="root">
+        <div style="min-h-screen flex flex-col items-center justify-center text-center p-4">
+            <div style="width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: #2C95C9; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+        </div>
+    </div>
+    
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+
+{
+  "name": "ChefBot (LIVE-16)",
+  "short_name": "ChefBot",
+  "id": "chefbot-app-live-v16",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F2F6F8",
+  "theme_color": "#2C95C9",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/chefbot_logo.svg?v=16",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/chefbot_logo.svg?v=16",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
